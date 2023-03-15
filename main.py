@@ -53,7 +53,14 @@ def execute(request: SimpleText, ray: OpenfabricExecutionRay) -> SimpleText:
     for text in request.text:
         k = text.lower()
         ques += k
-
+    sentence_token.append(ques)
+    Tfidfvec = TfidfVectorizer(tokenizer=LNormalize, stop_words='english')
+    tfidf = Tfidfvec.fit_transform((sentence_token))
+    values=cosine_similarity(tfidf[-1], tfidf)
+    ind=values.argsort()[0][-2]
+    flat = values.flatten()
+    flat.sort()
+    
 
 
     return SimpleText(dict(text=output))
