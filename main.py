@@ -9,7 +9,7 @@ from time import time
 import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+import wolframalpha
 import nltk
 from nltk.stem import WordNetLemmatizer
 
@@ -23,6 +23,8 @@ with open('data.txt', 'r', encoding='utf8', errors='ignore') as bank:
 
 sentence_token = nltk.sent_tokenize(process)
 word_token = nltk.word_tokenize(process)
+app_id = 'GE8LH7-AKV354X7PE'
+client = wolframalpha.Client(app_id)
 
 
 def config(configuration: ConfigClass):
@@ -57,15 +59,18 @@ def execute(request: SimpleText, ray: OpenfabricExecutionRay) -> SimpleText:
     sentence_token.append(ques)
     Tfidfvec = TfidfVectorizer(tokenizer=LNormalize, stop_words='english')
     tfidf = Tfidfvec.fit_transform(sentence_token)
-    values=cosine_similarity(tfidf[-1], tfidf)
-    ind=values.argsort()[0][-2]
+    values = cosine_similarity(tfidf[-1], tfidf)
+    ind = values.argsort()[0][-2]
     flat = values.flatten()
     flat.sort()
     req = flat[-2]
-    if req==1:
+    if req == 1:
         bot_resp += sentence_token[ind]
         return bot_resp
-
-
+    if 'what' in ques or 'solve' in ques:
+        res = client.query(ques)
+        ans = next(res.results).text
+    print(ans)
+    output.append(ans)
 
     return SimpleText(dict(text=output))
