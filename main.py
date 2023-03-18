@@ -28,7 +28,6 @@ client = wolframalpha.Client(app_id)
 
 
 def config(configuration: ConfigClass):
-    # TODO Add code here
     pass
 
 
@@ -50,11 +49,25 @@ def LNormalize(text):
 
 
 def execute(request: SimpleText, ray: OpenfabricExecutionRay) -> SimpleText:
+    global ans
     output = []
     ques = ''
     for text in request.text:
         k = text.lower()
         ques += k
+    if 'what' in ques or 'solve' in ques:
+        res = client.query(ques)
+        ans = next(res.results).text
+    try:
+        print(ans)
+    except StopIteration:
+        nlp_model(ques)
+    nlp_model(ques)
+    output.append(ans)
+    return SimpleText(dict(text=output))
+
+
+def nlp_model(ques):
     bot_resp = ''
     sentence_token.append(ques)
     Tfidfvec = TfidfVectorizer(tokenizer=LNormalize, stop_words='english')
@@ -67,10 +80,3 @@ def execute(request: SimpleText, ray: OpenfabricExecutionRay) -> SimpleText:
     if req == 1:
         bot_resp += sentence_token[ind]
         return bot_resp
-    if 'what' in ques or 'solve' in ques:
-        res = client.query(ques)
-        ans = next(res.results).text
-    print(ans)
-    output.append(ans)
-
-    return SimpleText(dict(text=output))
