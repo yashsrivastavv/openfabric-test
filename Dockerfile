@@ -5,4 +5,5 @@ WORKDIR /cognitive-assistant
 COPY ../openfabric-test/openfabric-test .
 RUN poetry install -vvv --no-dev
 EXPOSE 5000
+//not selected
 CMD ["sh","start.sh"]
